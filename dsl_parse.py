@@ -1,9 +1,9 @@
 # Author: Peter Sovietov
 
 class Stream:
-  def __init__(self, data):
-    self.data = data
-    self.size = len(data)
+  def __init__(self, buf):
+    self.buf = buf
+    self.size = len(buf)
     self.pos = 0
     self.error_pos = 0
     self.out = []
@@ -14,9 +14,6 @@ def back(state, i, j):
   state.pos = i
   del state.out[j:]
   return False
-
-def empty(state):
-  return True
 
 def andp(f):
   def parse(state):
@@ -69,11 +66,12 @@ def seq(*args):
     return True
   return parse
 
-def quote(f):
+def quote(*args):
+  f = seq(*args)
   def parse(state):
     i = state.pos
     if f(state):
-      state.out.append(state.data[i:state.pos])
+      state.out.append(state.buf[i:state.pos])
       return True
     return False
   return parse
@@ -82,27 +80,20 @@ def push(f):
   def parse(state):
     i = state.pos
     if f(state):
-      state.out.append(state.data[i])
+      state.out.append(state.buf[i])
       return True
     return False
   return parse
 
-def pop(f):
-  def parse(state):
-    if f(state):
-      state.out.pop()
-      return True
-    return False
-  return parse
-
-def use(n, f):
+def to(n, f):
   def parse(state):
     i = len(state.out) - n
     state.out[i:] = [f(*state.out[i:])]
     return True
   return parse
 
-def group(f):
+def group(*args):
+  f = seq(*args)
   def parse(state):
     i = len(state.out)
     if f(state):
@@ -111,29 +102,51 @@ def group(f):
     return False
   return parse
 
-def a(term):
-  def parse(state):
-    i = state.pos
-    for x in term:
-      if i >= state.size or state.data[i] != x:
-        return False
-      i += 1
-    state.pos = i
-    return True
-  return parse
-
 def eat(f):
   def parse(state):
-    if state.pos < state.size and f(state.data[state.pos]):
+    if state.pos < state.size and f(state.buf[state.pos]):
       state.pos += 1
       return True
     return False
   return parse
 
-any = eat(lambda x: True)
-end = notp(any)
+def a(term):
+  def parse(state):
+    i = state.pos + len(term)
+    if state.buf[state.pos:i] == term:
+      state.pos = i
+      return True
+    return False
+  return parse
+
+def match(words):
+  d = {}
+  for w in words:
+    d[len(w)] = d.get(len(w), set()) | set([w])
+  sets = sorted(d.items(), reverse=True)
+  def parse(state):
+    for s in sets:
+      if state.buf[state.pos:state.pos + s[0]] in s[1]:
+        state.pos += s[0]
+        return True
+    return False
+  return parse
+
+def first(table):
+  def parse(state):
+    c = state.buf[state.pos:state.pos + 1]
+    return table[c](state) if c in table else False
+  return parse
+
+empty = lambda s: True
+one = eat(lambda x: True)
+end = notp(one)
 opt = lambda f: alt(f, empty)
-non = lambda f: seq(notp(f), any)
+non = lambda f: seq(notp(f), one)
+maybe = lambda f, x: alt(f, to(0, lambda: x))
+one_of = lambda c: eat(lambda x: x in c)
+range_of = lambda a, b: eat(lambda x: a <= x <= b)
+list_of = lambda f, d: seq(f, many(seq(d, f)))
 
 digit = eat(str.isdigit)
 letter = eat(str.isalpha)
@@ -142,21 +155,17 @@ upper = eat(str.isupper)
 alnum = eat(str.isalnum)
 space = eat(str.isspace)
 
-one_of = lambda c: eat(lambda x: x in c)
-
-def tdop(peek_token, prefix, infix):
-  def parse(state, rbp):
+def tdop(prefix, infix):
+  def parse(state, bp):
     i, j = state.pos, len(state.out)
-    t = peek_token(state)
-    if t not in prefix or not prefix[t](state):
+    f = prefix(state.buf[state.pos]) if state.pos < state.size else None
+    if f is None or not f(state):
       return False
-    while True:
-      t = peek_token(state)
-      if t not in infix:
+    while state.pos < state.size:
+      f = infix(state.buf[state.pos])
+      if f is None or f[1] < bp:
         return True
-      f, lbp = infix[t]
-      if rbp > lbp:
-        return True
-      if not f(lbp)(state):
+      if not f[0](f[1])(state):
         return back(state, i, j)
-  return lambda rbp: lambda state: parse(state, rbp)
+    return True
+  return lambda b: lambda s: parse(s, b)
