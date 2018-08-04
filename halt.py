@@ -42,7 +42,7 @@ sim = repeat(rule(
     seq(Jz(A, B), to(lambda v: v.PC + 1 if v.MEM[v.B] else v.A)),
     seq(Halt(), to(lambda v: None))
   )),
-  let(PC1=non(None)), guard(lambda v: v.COUNT < 100000),
+  let(PC1=non(None)), guard(lambda v: v.COUNT <= 100000),
   to(lambda v: [v.MEM, v.PROG, v.PC1, v.COUNT + 1])
 ))
 
@@ -62,4 +62,8 @@ JMP 1
 HALT
 """
 
-print("Program halts! %d instructions executed." % simulate(source)[3])
+count = simulate(source)[3]
+if count > 100000:
+  print("Unable to determine if application halts.")
+else:
+  print("Program halts! %d instructions executed." % count)
