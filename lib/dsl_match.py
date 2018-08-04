@@ -166,14 +166,20 @@ def each(f):
     return False
   return walk
 
+def repeat(f):
+  def walk(tree):
+    while True:
+      old = tree.out
+      if not perform(tree, f):
+        tree.out = old
+        return True
+  return walk
+
 scope = lambda f: lambda t: f(t.scope)(t)
 opt = lambda x: alt(x, id)
 delay = lambda f: lambda t: f()(t)
 act = lambda f: lambda t: f(t, **t.scope)
-
-def repeat(x):
-  f = opt(seq(x, delay(lambda: f)))
-  return f
+guard = lambda f: lambda t: f(t.scope)
 
 def topdown(x):
   f = seq(x, each(delay(lambda: f)))
