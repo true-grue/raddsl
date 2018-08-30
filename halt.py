@@ -24,24 +24,24 @@ Halt = make_term("HALT")
 def store(data, addr, val):
   data[addr] = val & 1
 
-store_instr = lambda M: alt(
-  rule(And(A, B), to(lambda v: store(M, v.A, M[v.A] & M[v.B]))),
-  rule(Or(A, B), to(lambda v: store(M, v.A, M[v.A] | M[v.B]))),
-  rule(Xor(A, B), to(lambda v: store(M, v.A, M[v.A] ^ M[v.B]))),
-  rule(Not(A), to(lambda v: store(M, v.A, ~M[v.A]))),
-  rule(Mov(A, B), to(lambda v: store(M, v.A, M[v.B]))),
-  rule(Set(A, B), to(lambda v: store(M, v.A, v.B))),
-  rule(Random(A), to(lambda v: store(M, v.A, randint(0, 1))))
+store_instr = alt(
+  seq(And(A, B), to(lambda v: store(v.MEM, v.A, v.MEM[v.A] & v.MEM[v.B]))),
+  seq(Or(A, B), to(lambda v: store(v.MEM, v.A, v.MEM[v.A] | v.MEM[v.B]))),
+  seq(Xor(A, B), to(lambda v: store(v.MEM, v.A, v.MEM[v.A] ^ v.MEM[v.B]))),
+  seq(Not(A), to(lambda v: store(v.MEM, v.A, ~v.MEM[v.A]))),
+  seq(Mov(A, B), to(lambda v: store(v.MEM, v.A, v.MEM[v.B]))),
+  seq(Set(A, B), to(lambda v: store(v.MEM, v.A, v.B))),
+  seq(Random(A), to(lambda v: store(v.MEM, v.A, randint(0, 1))))
 )
 
 sim = repeat(rule(
   [let(MEM=id), let(PROG=id), let(PC=id), let(COUNT=id)],
-  to(lambda v: v.PROG[v.PC]), scope(lambda v: alt(
-    seq(store_instr(v.MEM), to(lambda v: v.PC + 1)),
+  to(lambda v: v.PROG[v.PC]), alt(
+    seq(store_instr, to(lambda v: v.PC + 1)),
     seq(Jmp(A), to(lambda v: v.A)),
     seq(Jz(A, B), to(lambda v: v.PC + 1 if v.MEM[v.B] else v.A)),
     seq(Halt(), to(lambda v: None))
-  )),
+  ),
   let(PC1=non(None)), guard(lambda v: v.COUNT <= 100000),
   to(lambda v: [v.MEM, v.PROG, v.PC1, v.COUNT + 1])
 ))

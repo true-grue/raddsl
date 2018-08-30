@@ -5,9 +5,21 @@ class Tree:
     self.scope = None
     self.out = out
 
+class RuleScope(dict):
+  def __getattr__(self, n):
+    return self[n]
+
 tuple_or_list = (tuple, list)
 
 id = lambda t: True
+
+def match_seq(tree, f, x):
+  i = 0
+  for y in f:
+    if not match(tree, y, x[i]):
+      return False
+    i += 1
+  return True
 
 def match(tree, f, x):
   if callable(f):
@@ -18,12 +30,7 @@ def match(tree, f, x):
     return f == x
   if type(x) not in tuple_or_list or len(x) != len(f):
     return False
-  i = 0
-  for y in f:
-    if not match(tree, y, x[i]):
-      return False
-    i += 1
-  return True
+  return match_seq(tree, f, x)
 
 def perform(tree, f):
   return f(tree) if callable(f) else match(tree, f, tree.out)
@@ -35,9 +42,11 @@ def non(x):
 
 def alt(*args):
   def walk(tree):
+    old = tree.scope
     for x in args:
       if perform(tree, x):
         return True
+      tree.scope = old
     return False
   return walk
 
@@ -57,23 +66,11 @@ def let(**kwargs):
     if name in tree.scope:
       return match(tree, tree.scope[name], tree.out)
     if perform(tree, value):
+      tree.scope = RuleScope(tree.scope)
       tree.scope[name] = tree.out
       return True
     return False
   return walk
-
-def var(**kwargs):
-  name, value = list(kwargs.items())[0]
-  def walk(tree):
-    if perform(tree, value):
-      tree.scope[name] = tree.out
-      return True
-    return False
-  return walk
-
-class RuleScope(dict):
-  def __getattr__(self, n):
-    return self[n]
 
 def rule(*args):
   f = seq(*args)
@@ -113,14 +110,7 @@ def cons(f, g):
     return False
   return walk
 
-def rewrite_rec(tree, f, x):
-  tree.out = x
-  if callable(f):
-    return f(tree)
-  if type(f) not in tuple_or_list:
-    return f == x
-  if type(x) not in tuple_or_list or len(x) != len(f):
-    return False
+def rewrite_seq(tree, f, x):
   if type(x) is list:
     x = tuple(x)
   i = 0
@@ -131,6 +121,16 @@ def rewrite_rec(tree, f, x):
     i += 1
   tree.out = list(x) if type(x) is list else x
   return True
+
+def rewrite_rec(tree, f, x):
+  tree.out = x
+  if callable(f):
+    return f(tree)
+  if type(f) not in tuple_or_list:
+    return f == x
+  if type(x) not in tuple_or_list or len(x) != len(f):
+    return False
+  return rewrite_seq(tree, f, x)
 
 def rewrite(f):
   def walk(tree):
