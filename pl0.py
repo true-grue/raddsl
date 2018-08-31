@@ -35,6 +35,7 @@ ident = rule(Id(X), to(lambda v: "M.%s" % v.X))
 num = rule(Num(X), to(lambda v: "%s" % v.X))
 
 def trans_op(x):
+  if x == "=": return "=="
   if x == "#": return "!="
   if x == "/": return "//"
   return x
