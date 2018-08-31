@@ -20,7 +20,7 @@ Z = let(Z=id)
 
 def emit(t):
   if t.out:
-    t.code.append(TAB * t.level + "".join(t.out))
+    t.code.append(TAB * t.level + t.out)
   return True
 
 def indent(t):
@@ -48,10 +48,10 @@ expr = bottomup(alt(
   num
 ))
 
-var = seq(Var(id), build(lambda v: Line([])))
+var = seq(Var(id), build(lambda v: Line("")))
 
 pair = rule(
-  [let(X=ident), let(Y=num)], to(lambda v: Line(["%s = %s" % (v.X, v.Y)]))
+  [let(X=ident), let(Y=num)], to(lambda v: Line("%s = %s" % (v.X, v.Y)))
 )
 
 const = rule(Const(let(X=each(pair))), to(lambda v: v.X))
@@ -59,29 +59,29 @@ const = rule(Const(let(X=each(pair))), to(lambda v: v.X))
 block = delay(lambda: block)
 
 proc = rule(
-  Proc(X, let(Y=block)),
-  to(lambda v: [Line(["def ", v.X[1], "():"]), Tab(v.Y)])
+  Proc(X, let(Y=block)), to(lambda v: [Line("def %s():" % v.X[1]), Tab(v.Y)])
 )
 
 stmt = delay(lambda: stmt)
 
 stmt = alt(
   rule(
-    Assign(let(X=ident), let(Y=expr)), to(lambda v: Line([v.X, " = ", v.Y]))
+    Assign(let(X=ident), let(Y=expr)),
+    to(lambda v: Line("%s = %s" % (v.X, v.Y)))
   ),
-  rule(Call(X), to(lambda v: Line(["%s()" % v.X[1]]))),
-  rule(Read(let(X=ident)), to(lambda v: Line([v.X, " = read()"]))),
-  rule(Write(let(X=ident)), to(lambda v: Line(["write(", v.X, ")"]))),
+  rule(Call(X), to(lambda v: Line("%s()" % v.X[1]))),
+  rule(Read(let(X=ident)), to(lambda v: Line("%s = read()" % v.X))),
+  rule(Write(let(X=ident)), to(lambda v: Line("write(%s)" % v.X))),
   rule(Begin(let(X=each(stmt))), to(lambda v: v.X)),
   rule(
     If(let(X=expr), let(Y=stmt)),
-    to(lambda v: [Line(["if ", v.X, ":"]), Tab(v.Y)])
+    to(lambda v: [Line("if %s:" % v.X), Tab(v.Y)])
   ),
   rule(
     While(let(X=expr), let(Y=stmt)),
-    to(lambda v: [Line(["while ", v.X, ":"]), Tab(v.Y)])
+    to(lambda v: [Line("while %s:" % v.X), Tab(v.Y)])
   ),
-  seq(Nop(), build(lambda v: Line(["pass"])))
+  seq(Nop(), build(lambda v: Line("pass")))
 )
 
 block = rule(
