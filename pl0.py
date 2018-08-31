@@ -101,6 +101,6 @@ def trans(source):
     return "\n".join(t.code)
   return None
 
-with open("example.pl0") as f:
+with open("primes.pl0") as f:
   source = f.read()
 print(trans(source))
