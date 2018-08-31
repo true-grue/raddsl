@@ -19,5 +19,5 @@ Unop = make_term("unop")
 Binop = make_term("binop")
 Nop = make_term("nop")
 
-Line = make_term("Line")
+Line = make_term("line")
 Tab = make_term("tab")

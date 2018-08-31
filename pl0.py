@@ -34,9 +34,13 @@ def dedent(t):
 ident = rule(Id(X), to(lambda v: "M.%s" % v.X))
 num = rule(Num(X), to(lambda v: "%s" % v.X))
 
+def trans_op(x):
+  if x == "#": return "!="
+  if x == "/": return "//"
+  return x
+
 expr = bottomup(alt(
-  rule(Binop("#", Y, Z), to(lambda v: "(%s != %s)" % (v.Y, v.Z))),
-  rule(Binop(X, Y, Z), to(lambda v: "(%s %s %s)" % (v.Y, v.X, v.Z))),
+  rule(Binop(X, Y, Z), to(lambda v: "(%s %s %s)" % (v.Y, trans_op(v.X), v.Z))),
   rule(Unop("odd", Y), to(lambda v: "(%s & 1 != 0)" % v.Y)),
   rule(Unop(X, Y), to(lambda v: "%s%s" % (v.X, v.Y))),
   ident,
