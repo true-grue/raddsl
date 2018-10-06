@@ -2,7 +2,7 @@
 
 raddsl is a toolset for rapid prototyping of DSL compilers.
 
-It consists of two combinator-based libraries (embedded DSLs):
+It consists of two combinator-based libraries (embedded DSLs) written in Python:
 
 1. *parse.py* for lexical and syntax analysis.
 1. *rewrite.py* for term rewriting.
