@@ -3,7 +3,7 @@
 
 from random import randint
 from halt_parser import parse
-from lib.dsl_match import *
+from raddsl.rewrite import *
 
 A = let(A=id)
 B = let(B=id)

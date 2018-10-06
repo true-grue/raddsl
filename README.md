@@ -1,2 +1,3 @@
-# dsl-tools
-Tools for rapid prototyping of DSL compilers
+# raddsl
+
+Tools for rapid prototyping of DSL compilers.

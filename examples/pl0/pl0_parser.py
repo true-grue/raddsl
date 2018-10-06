@@ -1,6 +1,6 @@
 # PL/0
 
-from lib.dsl_parse import *
+from raddsl.parse import *
 import pl0_ast as ast
 
 token = lambda tag: to(1, lambda x: (tag, x))
@@ -18,7 +18,7 @@ tokens = seq(many(alt(ws, operator, num, name)), end)
 tag = lambda t: push(eat(lambda x: x[0] == t))
 ident = tag("id")
 number = tag("num")
-op = lambda n: eat(lambda x: x[0] == "op" and x[1] == n)
+op = lambda n: eat(lambda x: x == ("op", n))
 expression = lambda x: expression(x)
 factor = alt(ident, number, seq(op("("), expression, op(")")))
 term = seq(group(list_of(factor, push(alt(op("*"), op("/"))))), ast.expr)
@@ -55,12 +55,10 @@ procedure = seq(op("procedure"), ident, op(";"), block, op(";"), ast.proc)
 block = seq(group(opt(const), opt(var), many(procedure), statement), ast.block)
 program = seq(block, op("."))
 
-def scan(source):
-  s = Stream(source)
-  if not tokens(s):
-    return []
-  return [x for x in s.out if x is not None]
+def scan(src):
+  s = Stream(src)
+  return [x for x in s.out if x] if tokens(s) else []
 
-def parse(source):
-  s = Stream(scan(source))
+def parse(src):
+  s = Stream(scan(src))
   return s.out[0] if program(s) else []

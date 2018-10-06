@@ -1,6 +1,6 @@
 # PL/0
 
-from lib.dsl_parse import *
+from raddsl.parse import *
 from pl0_term import *
 
 def parse_expr(rest):

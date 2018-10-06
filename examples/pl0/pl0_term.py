@@ -1,6 +1,6 @@
 # PL/0
 
-make_term = lambda tag: lambda *args: (tag,) + args
+make_term = lambda t: lambda *a: (t,) + a
 
 Id = make_term("id")
 Num = make_term("num")
