@@ -1,6 +1,6 @@
 # raddsl
 
-raddsl is a toolset for rapid prototyping of DSL compilers.
+raddsl is a toolset for rapid prototyping of [DSL compilers](http://composition.al/blog/2017/04/30/what-isnt-a-high-performance-dsl/).
 
 It consists of two combinator-based libraries (embedded DSLs) written in Python:
 
