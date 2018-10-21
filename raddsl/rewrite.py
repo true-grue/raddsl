@@ -120,10 +120,11 @@ def build(f):
     return walk
 
 
-def cons(f, g):
+def cons(h, t):
     def walk(tree):
         if type(tree.out) in tuple_or_list and tree.out:
-            return match(tree, f, tree.out[0]) and match(tree, g, tree.out[1:])
+            m = match(tree, h, tree.out[:len(h)])
+            return m and match(tree, t, tree.out[len(h):])
         return False
     return walk
 

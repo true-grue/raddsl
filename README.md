@@ -16,3 +16,5 @@ raddsl is inspired by:
 * [Stratego/XT](https://en.wikipedia.org/wiki/Stratego/XT)
 
 See *examples* folder for some examples of how to use raddsl.
+
+See also [Uzh compiler](https://github.com/true-grue/uzh).
