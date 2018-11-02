@@ -43,6 +43,8 @@ primes()
 >>> calc("(1 + 2 + 3 + 4) - (10 / 2)")
 ('Int', 5)
 >>> sys.path.append("fmt")
->>> from fmt import format_test
->>> format_test()
-'void foo(void)\n{\n\tif (x > 0) {\n\t\tx = 0;\n\t}\n\ty = z;\n}'
+>>> import fmt
+>>> fmt.kernel_test()
+'void foo(void)\n{\n\tif (x > 0) {\n\t\tx = 0;\n\t\tz = y + 1;\n\t}\n\ty = z;\n}'
+>>> fmt.python_test()
+'def foo():\n    if x > 0:\n        x = 0\n        z = y + 1\n    y = z'
