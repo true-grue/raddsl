@@ -42,3 +42,7 @@ primes()
 >>> from calc import calc
 >>> calc("(1 + 2 + 3 + 4) - (10 / 2)")
 ('Int', 5)
+>>> sys.path.append("fmt")
+>>> from fmt import format_test
+>>> format_test()
+'void foo(void)\n{\n\tif (x > 0) {\n\t\tx = 0;\n\t}\n\ty = z;\n}'

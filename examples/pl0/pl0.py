@@ -79,7 +79,7 @@ stmt = alt(
     While(let(X=expr), let(Y=stmt)),
     to(lambda v: [Line("while %s:" % v.X), Tab(v.Y)])
   ),
-  rule(Nop(), build(lambda v: Line("pass")))
+  rule(Nop(), to(lambda v: Line("pass")))
 )
 
 block = rule(
