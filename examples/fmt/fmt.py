@@ -5,17 +5,18 @@ from term import *
 
 X, Y = let(X=id), let(Y=id)
 
+TAB ="\t"
+
 box_rules = alt(
   rule(Id(X), to(lambda v: H(v.X))),
   rule(Int(X), to(lambda v: H(str(v.X)))),
   rule(Assign(X, Y), to(lambda v: H(v.X, "=", H(v.Y, ";", sep="")))),
   rule(Bop(let(O=id), X, Y), to(lambda v: H(v.X, v.O, v.Y))),
-  rule(Block(X), to(lambda v: V(*v.X, nest="\t"))),
   rule(If(let(C=id), X), to(lambda v: V(
-    H("if", H("(", v.C, ")", sep=""), "{"), v.X, "}"
+    H("if", H("(", v.C, ")", sep=""), "{"), V(*v.X, nest=TAB), "}"
   ))),
   rule(Func(X, [], Y), to(lambda v: V(
-    H("void", H(v.X, "(void)", sep="")), "{", v.Y, "}"
+    H("void", H(v.X, "(void)", sep="")), "{", V(*v.Y, nest=TAB), "}"
   )))
 )
 
@@ -38,13 +39,12 @@ def fmt(box):
 
   return flatten(unbox(box))
 
-ast = Func(Id("foo"), [],
-  Block([
-    If(Bop(">", Id("x"), Int(0)), Block([
+ast = Func(Id("foo"), [], [
+    If(Bop(">", Id("x"), Int(0)), [
       Assign(Id("x"), Int(0))
-    ])),
+    ]),
     Assign(Id("y"), Id("z"))
-  ])
+  ]
 )
 
 def format_test():

@@ -1,5 +1,3 @@
-# code formatter
-
 class Head(dict):
   def __eq__(self, right):
     return self["tag"] == right
@@ -15,7 +13,6 @@ Id = make_term("Id")
 Int = make_term("Int")
 Assign = make_term("Assign")
 Bop = make_term("Bop")
-Block = make_term("Block")
 If = make_term("If")
 Func = make_term("Func")
 
