@@ -15,6 +15,9 @@ raddsl is inspired by:
 * [Pratt Parser](https://en.wikipedia.org/wiki/Pratt_parser)
 * [Stratego](https://en.wikipedia.org/wiki/Stratego/XT)
 
-See *examples* folder for some examples of how to use raddsl.
+See *examples* folder for some examples of use of raddsl. See also:
 
-See also [Uzh compiler](https://github.com/true-grue/uzh).
+* [Uzh compiler](https://github.com/true-grue/uzh).
+* [PigletC compiler](https://github.com/true-grue/uzh).
+
+[Moscow Python Conf++ slides (in Russian)](http://sovietov.com/txt/dsl_python_conf.pdf)
