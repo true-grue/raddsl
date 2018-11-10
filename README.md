@@ -19,7 +19,7 @@ See *examples* folder for some examples of use of raddsl (code formatter, PL0 to
 
 See also:
 
-* [PigletC](https://github.com/true-grue/PigletC) (a toy C-like language compiler for PigletVM (about 300 lines of Python code)
+* [PigletC](https://github.com/true-grue/PigletC) (a toy C-like language compiler for PigletVM)
 * [Uzh](https://github.com/true-grue/uzh) (a tiny compiler for FPGA soft processor, Uzh language is a statically compiled subset of Python)
 
 Documentation:
