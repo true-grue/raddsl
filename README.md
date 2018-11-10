@@ -18,6 +18,6 @@ raddsl is inspired by:
 See *examples* folder for some examples of use of raddsl. See also:
 
 * [Uzh compiler](https://github.com/true-grue/uzh).
-* [PigletC compiler](https://github.com/true-grue/uzh).
+* [PigletC compiler](https://github.com/true-grue/PigletC).
 
 [Moscow Python Conf++ slides (in Russian)](http://sovietov.com/txt/dsl_python_conf.pdf)
