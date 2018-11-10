@@ -15,7 +15,9 @@ raddsl is inspired by:
 * [Pratt Parser](https://en.wikipedia.org/wiki/Pratt_parser)
 * [Stratego](https://en.wikipedia.org/wiki/Stratego/XT)
 
-See *examples* folder for some examples of use of raddsl (code formatter, PL0 to Python translator, JSON parser etc). See also:
+See *examples* folder for some examples of use of raddsl (code formatter, PL0 to Python translator, JSON parser etc).
+
+See also:
 
 * [PigletC](https://github.com/true-grue/PigletC)
 * [Uzh](https://github.com/true-grue/uzh)
