@@ -21,7 +21,7 @@ See also:
 
 * [PigletC](https://github.com/true-grue/PigletC) (a toy C-like language compiler for PigletVM)
 * [Uzh](https://github.com/true-grue/uzh) (a tiny compiler for FPGA soft processor, Uzh language is a statically compiled subset of Python)
-* [Regexp](https://github.com/vkazanov/bytecode-interpreters-post/tree/master/regexp) (a regular expressions compiler by @vkazanov)
+* [Regexp](https://github.com/vkazanov/bytecode-interpreters-post/tree/master/regexp) (a regular expressions compiler by [@vkazanov](https://github.com/vkazanov))
 
 Documentation:
 
