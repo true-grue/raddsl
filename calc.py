@@ -31,5 +31,5 @@ def calc(text):
     s = Stream(text)
     if not main(s):
         print("%s\n%s" % (text, " " * s.epos + "^ Eh?"))
-        return
+        return None
     return(s.out[0])
