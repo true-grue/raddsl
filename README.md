@@ -1,4 +1,4 @@
-# raddsl -- a toolset for rapid prototyping of [DSL compilers](http://composition.al/blog/2017/04/30/what-isnt-a-high-performance-dsl/)
+# raddsl — a toolset for rapid prototyping of [DSL compilers](http://composition.al/blog/2017/04/30/what-isnt-a-high-performance-dsl/)
 
 Two combinator-based libraries (eDSLs) written in Python:
 
