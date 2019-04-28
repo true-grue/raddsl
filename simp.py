@@ -38,9 +38,9 @@ def Cmul(x, y):
 
 
 rules = innermost(alt(
-    rule(Cadd(C, D), to(lambda v: Int(v.C + v.D))),
+    rule(Add(C, D), to(lambda v: Int(v.C + v.D))),
     rule(Sub(C, D), to(lambda v: Int(v.C - v.D))),
-    rule(Cmul(C, D), to(lambda v: Int(v.C * v.D))),
+    rule(Mul(C, D), to(lambda v: Int(v.C * v.D))),
     rule(Neg(C), to(lambda v: Int(-v.C))),
     rule(Cmul(Int(1), X), to(lambda v: v.X)),
     rule(Cmul(Int(-1), X), to(lambda v: Neg(v.X))),
