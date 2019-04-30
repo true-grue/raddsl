@@ -48,47 +48,51 @@ Bop = make_term("Bop")
 If = make_term("If")
 Func = make_term("Func")
 
-X, Y = let(X=any), let(Y=any)
+pexpr = delay(lambda: pexpr)
+stmt = delay(lambda: stmt)
 
-kernelc = topdown(opt(alt(
-    rule(Var(X), to(lambda v: H(v.X))),
-    rule(Int(X), to(lambda v: H(str(v.X)))),
-    rule(Assign(X, Y), to(lambda v: H(v.X, "=", H(v.Y, ";", sep="")))),
-    rule(Bop(let(O=any), X, Y), to(lambda v: H(v.X, v.O, v.Y))),
-    rule(If(let(C=any), X), to(lambda v: V(
-        H("if", H("(", v.C, ")", sep=""), "{"), V(*v.X, tab="\t"), "}"
+val = alt(
+    rule(Var(let(X=any)), to(lambda v: H(v.X))),
+    rule(Int(let(X=any)), to(lambda v: H(str(v.X))))
+)
+
+pexpr = alt(
+    val,
+    rule(Bop(let(O=any), let(X=pexpr), let(Y=pexpr)),
+         to(lambda v: H("(", H(v.X, v.O, v.Y), ")", sep="")))
+)
+
+expr = alt(
+    val,
+    rule(Bop(let(O=any), let(X=pexpr), let(Y=pexpr)),
+         to(lambda v: H(v.X, v.O, v.Y)))
+)
+
+stmt = alt(
+    expr,
+    rule(Assign(let(X=expr), let(Y=expr)),
+         to(lambda v: H(v.X, "=", H(v.Y, ";", sep="")))),
+    rule(If(let(X=expr), let(Y=stmt)), to(lambda v: V(
+        H("if", H("(", v.X, ")", sep=""), "{"), V(*v.Y, tab="\t"), "}"
     ))),
-    rule(Func(X, [], Y), to(lambda v: V(
+    rule(Func(let(X=expr), [], let(Y=stmt)), to(lambda v: V(
         H("void", H(v.X, "(void)", sep="")), "{", V(*v.Y, tab="\t"), "}"
-    )))
-)))
-
-python = topdown(opt(alt(
-    rule(Var(X), to(lambda v: H(v.X))),
-    rule(Int(X), to(lambda v: H(str(v.X)))),
-    rule(Assign(X, Y), to(lambda v: H(v.X, "=", v.Y))),
-    rule(Bop(let(O=any), X, Y), to(lambda v: H(v.X, v.O, v.Y))),
-    rule(If(let(C=any), X), to(lambda v: V(
-        H("if", H(v.C, ":", sep="")), V(*v.X, tab=" " * 4)))),
-    rule(Func(X, [], Y), to(lambda v: V(
-        H("def", H(v.X, "():", sep="")), V(*v.Y, tab=" " * 4)
-    )))
-)))
+    ))),
+    many(stmt)
+)
 
 
 def ast_to_text(ast, rules):
     """
     >>> ast = Func(Var("foo"), [], [
-    ...     If(Bop(">", Var("x"), Int(0)), [
+    ...     If(Bop(">", Bop("+", Var("x"), Int(1)), Int(0)), [
     ...         Assign(Var("x"), Int(0)),
     ...         Assign(Var("z"), Bop("+", Var("y"), Int(1)))
     ...     ]),
     ...     Assign(Var("y"), Var("z"))
     ... ])
-    >>> ast_to_text(ast, kernelc)
-    'void foo(void)\\n{\\n\\tif (x > 0) {\\n\\t\\tx = 0;\\n\\t\\tz = y + 1;\\n\\t}\\n\\ty = z;\\n}'
-    >>> ast_to_text(ast, python)
-    'def foo():\\n    if x > 0:\\n        x = 0\\n        z = y + 1\\n    y = z'
+    >>> ast_to_text(ast, stmt)
+    'void foo(void)\\n{\\n\\tif ((x + 1) > 0) {\\n\\t\\tx = 0;\\n\\t\\tz = y + 1;\\n\\t}\\n\\ty = z;\\n}'
     """
     t = Tree(ast)
     return fmt(t.out) if rules(t) else None
