@@ -1,4 +1,4 @@
-# raddsl
+# raddsl 27042019
 # Author: Peter Sovietov
 
 
@@ -8,12 +8,12 @@ class Tree:
         self.out = out
 
 
-class RuleScope(dict):
+class Scope(dict):
     def __getattr__(self, n):
         return self[n]
 
 
-tuple_or_list = (tuple, list)
+tuple_or_list = tuple, list
 
 
 def match_seq(tree, f, x):
@@ -76,7 +76,7 @@ def let(**kwargs):
         if name in tree.scope:
             return match(tree, tree.scope[name], tree.out)
         if perform(tree, value):
-            tree.scope = RuleScope(tree.scope)
+            tree.scope = Scope(tree.scope)
             tree.scope[name] = tree.out
             return True
         return False
@@ -88,7 +88,7 @@ def rule(*args):
 
     def walk(tree):
         scope = tree.scope
-        tree.scope = RuleScope()
+        tree.scope = Scope()
         m = f(tree)
         tree.scope = scope
         return m
@@ -163,7 +163,7 @@ def rewrite(f):
     return walk
 
 
-def each_rec(tree, f, out):
+def many_rec(tree, f, out):
     old = tree.out
     i = 0
     for tree.out in old:
@@ -177,12 +177,12 @@ def each_rec(tree, f, out):
     return True
 
 
-def each(f):
+def many(f):
     def walk(tree):
         if type(tree.out) is tuple:
-            return each_rec(tree, f, tree.out)
+            return many_rec(tree, f, tree.out)
         if type(tree.out) is list:
-            m = each_rec(tree, f, tuple(tree.out))
+            m = many_rec(tree, f, tuple(tree.out))
             if m:
                 tree.out = list(tree.out)
             return m
@@ -200,37 +200,31 @@ def repeat(f):
     return walk
 
 
-def id(t):
-    return True
+def any(t): return True
 
 
-def scope(f):
-    return lambda t: f(t.scope)(t)
+def scope(f): return lambda t: f(t.scope)(t)
 
 
-def opt(x):
-    return alt(x, id)
+def opt(x): return alt(x, any)
 
 
-def delay(f):
-    return lambda t: f()(t)
+def delay(f): return lambda t: f()(t)
 
 
-def act(f):
-    return lambda t: f(t, **t.scope)
+def scoped(f): return lambda t: f(t, **t.scope)
 
 
-def guard(f):
-    return lambda t: f(t.scope)
+def guard(f): return lambda t: f(t.scope)
 
 
 def topdown(x):
-    f = seq(x, each(delay(lambda: f)))
+    f = seq(x, many(delay(lambda: f)))
     return f
 
 
 def bottomup(x):
-    f = seq(each(delay(lambda: f)), x)
+    f = seq(many(delay(lambda: f)), x)
     return f
 
 
