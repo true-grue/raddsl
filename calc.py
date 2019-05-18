@@ -8,7 +8,7 @@ oper = seq(quote(one_of("+-*/()")), to(1, lambda x: ("op", x)))
 token = memo(seq(ws, alt(num, oper)))
 
 
-def op(o): return seq(token, pop(lambda x: x == ("op", o)))
+def op(o): return seq(token, guard(lambda x: x == ("op", o)), drop)
 
 
 def left(p): return seq(expr(p + 1), to(3, binop))

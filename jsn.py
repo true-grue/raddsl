@@ -20,20 +20,18 @@ string = seq(a('"'), quote(many(alt(non(one_of('"\\')), escaped))),
 token = memo(seq(ws, alt(operator, string, number)))
 
 
-def op(o): return seq(token, pop(lambda x: x == ("op", o)))
+def op(o): return seq(token, guard(lambda x: x == ("op", o)), drop)
 
 
 def ty(t): return seq(token, guard(lambda x: x[0] == t), to(1, lambda x: x[1]))
 
 
-true = seq(op("true"), to(0, lambda: True))
-false = seq(op("false"), to(0, lambda: False))
-null = seq(op("null"), to(0, lambda: None))
-
-
 def value(x): return value(x)
 
 
+true = seq(op("true"), to(0, lambda: True))
+false = seq(op("false"), to(0, lambda: False))
+null = seq(op("null"), to(0, lambda: None))
 array = group(op("["), opt(list_of(value, op(","))), op("]"))
 member = group(ty("str"), op(":"), value)
 obj = seq(op("{"), group(opt(list_of(member, op(",")))), op("}"), to(1, dict))

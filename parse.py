@@ -1,4 +1,4 @@
-# raddsl 26042019
+# raddsl 18052019
 # Author: Peter Sovietov
 
 
@@ -98,12 +98,11 @@ def push(f):
     return parse
 
 
-def pop(f):
+def unpack(f):
     def parse(s):
-        if f(s.out[-1]):
-            s.out.pop()
-            return True
-        return False
+        f(s)
+        s.out += s.out.pop()
+        return True
     return parse
 
 
@@ -189,7 +188,7 @@ def list_of(f, delim): return seq(f, many(seq(delim, f)))
 
 
 any = eat(lambda x: True)
-drop = pop(lambda x: True)
+drop = unpack(to(1, lambda x: []))
 end = npeek(any)
 digit = eat(lambda x: x.isdigit())
 letter = eat(lambda x: x.isalpha())
