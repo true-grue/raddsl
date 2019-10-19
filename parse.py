@@ -1,6 +1,5 @@
-# raddsl 18052019
+# raddsl 03082019
 # Author: Peter Sovietov
-
 
 class Stream:
     def __init__(self, buf):
@@ -70,6 +69,16 @@ def seq(*args):
     def parse(s):
         i, j = s.pos, len(s.out)
         for f in args:
+            if not f(s):
+                return back(s, i, j)
+        return True
+    return parse
+
+
+def repeat(f, n):
+    def parse(s):
+        i, j = s.pos, len(s.out)
+        for i in range(n):
             if not f(s):
                 return back(s, i, j)
         return True
