@@ -1,5 +1,6 @@
-# raddsl 03082019
+# raddsl 05112019
 # Author: Peter Sovietov
+
 
 class Stream:
     def __init__(self, buf):
@@ -221,33 +222,37 @@ def memo(f):
     return parse
 
 
-def precedence(token, tag):
-    table = {}
+class Prec:
+    def __init__(self, token, tag):
+        self.token = token
+        self.tag = tag
+        self.prefix = {}
+        self.infix = {}
 
-    def prefix(s):
-        if not token(s):
+    def prefix_expr(self, s):
+        if not self.token(s):
             return False
-        e = table.get(tag(s.out[-1]))
-        return e and e[1] is None and e[0](s)
+        e = self.prefix.get(self.tag(s.out[-1]))
+        return e and e(s)
 
-    def infix(s, p):
+    def infix_expr(self, s, p):
         i, j = s.pos, len(s.out)
-        if not token(s):
+        if not self.token(s):
             return False
-        e = table.get(tag(s.out[-1]))
-        if e and e[1] is not None and e[1] >= p:
+        e = self.infix.get(self.tag(s.out[-1]))
+        if e and e[1] >= p:
             s.out.append(e)
             return True
         return back(s, i, j, False)
 
-    def expr(s, min_p):
+    def parse_expr(self, s, min_p):
         i, j = s.pos, len(s.out)
-        if not prefix(s):
+        if not self.prefix_expr(s):
             return back(s, i, j, False)
-        while infix(s, min_p):
+        while self.infix_expr(s, min_p):
             f, p = s.out.pop()
             if not f(p)(s):
                 return back(s, i, j)
         return True
 
-    return table, lambda p: lambda s: expr(s, p)
+    def expr(self, p): return lambda s: self.parse_expr(s, p)

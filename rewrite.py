@@ -1,4 +1,4 @@
-# raddsl 27042019
+# raddsl 05112019
 # Author: Peter Sovietov
 
 
@@ -120,11 +120,11 @@ def build(f):
     return walk
 
 
-def cons(h, t):
+def cons(hd, tl):
     def walk(tree):
         if type(tree.out) in tuple_or_list and tree.out:
-            m = match(tree, h, tree.out[:len(h)])
-            return m and match(tree, t, tree.out[len(h):])
+            m = match(tree, hd, tree.out[:len(hd)])
+            return m and match(tree, tl, tree.out[len(hd):])
         return False
     return walk
 
@@ -178,6 +178,9 @@ def many_rec(tree, f, out):
 
 
 def many(f):
+    if not callable(f):
+        f = seq(f)
+
     def walk(tree):
         if type(tree.out) is tuple:
             return many_rec(tree, f, tree.out)

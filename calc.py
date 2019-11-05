@@ -11,17 +11,19 @@ token = memo(seq(ws, alt(num, oper)))
 def op(o): return seq(token, guard(lambda x: x == ("op", o)), drop)
 
 
-def left(p): return seq(expr(p + 1), to(3, binop))
+def left(p): return seq(tab.expr(p + 1), to(3, binop))
 
 
-table, expr = precedence(token, lambda x: x[1] if x[0] == "op" else x[0])
-table["num"] = to(1, lambda x: x[1]), None
-table["("] = seq(drop, expr(0), op(")")), None
-table["+"] = left, 1
-table["-"] = left, 1
-table["*"] = left, 2
-table["/"] = left, 2
-main = seq(expr(0), ws, end)
+tab = Prec(token, lambda x: x[1] if x[0] == "op" else x[0])
+
+tab.prefix["num"] = to(1, lambda x: x[1])
+tab.prefix["("] = seq(drop, tab.expr(0), op(")"))
+tab.infix["+"] = left, 1
+tab.infix["-"] = left, 1
+tab.infix["*"] = left, 2
+tab.infix["/"] = left, 2
+
+main = seq(tab.expr(0), ws, end)
 
 
 def binop(x, o, y): return int(eval("%s%s%s" % (x, o[1], y)))
