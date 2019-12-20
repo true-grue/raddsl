@@ -7,15 +7,15 @@ t_num = to(1, lambda x: ("num", float(x)))
 t_str = to(1, lambda x: ("str", x))
 ws = many(space)
 OPERATORS = "[ { ] } : , false true null".split()
-operator = seq(quote(match(OPERATORS)), t_op)
+operator = seq(cite(match(OPERATORS)), t_op)
 int_part = alt(seq(range_of("1", "9"), many(digit)), a("0"))
 frac = seq(a("."), some(digit))
 exp = seq(one_of("eE"), opt(one_of("-+")), some(digit))
-number = seq(quote(opt(a("-")), int_part, opt(frac), opt(exp)), t_num)
+number = seq(cite(opt(a("-")), int_part, opt(frac), opt(exp)), t_num)
 uhex = alt(digit, range_of("a", "f"), range_of("A", "F"))
 uXXXX = seq(a("u"), uhex, uhex, uhex, uhex)
 escaped = seq(a("\\"), alt(one_of('"\\/bfnrt'), uXXXX))
-string = seq(a('"'), quote(many(alt(non(one_of('"\\')), escaped))),
+string = seq(a('"'), cite(many(alt(non(one_of('"\\')), escaped))),
              a('"'), t_str)
 token = memo(seq(ws, alt(operator, string, number)))
 

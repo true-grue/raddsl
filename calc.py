@@ -3,8 +3,8 @@
 from parse import *
 
 ws = many(space)
-num = seq(quote(some(digit)), to(1, lambda x: ("num", int(x))))
-oper = seq(quote(one_of("+-*/()")), to(1, lambda x: ("op", x)))
+num = seq(cite(some(digit)), to(1, lambda x: ("num", int(x))))
+oper = seq(cite(one_of("+-*/()")), to(1, lambda x: ("op", x)))
 token = memo(seq(ws, alt(num, oper)))
 
 
@@ -15,7 +15,6 @@ def left(p): return seq(tab.expr(p + 1), to(3, binop))
 
 
 tab = Prec(token, lambda x: x[1] if x[0] == "op" else x[0])
-
 tab.prefix["num"] = to(1, lambda x: x[1])
 tab.prefix["("] = seq(drop, tab.expr(0), op(")"))
 tab.infix["+"] = left, 1

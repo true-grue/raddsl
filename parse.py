@@ -1,9 +1,10 @@
-# raddsl 05112019
+# raddsl 16112019
 # Author: Peter Sovietov
 
 
 class Stream:
-    def __init__(self, buf):
+    def __init__(self, buf, **attrs):
+        self.__dict__.update(attrs)
         self.buf = buf
         self.pos = 0
         self.epos = 0
@@ -86,7 +87,7 @@ def repeat(f, n):
     return parse
 
 
-def quote(*args):
+def cite(*args):
     f = seq(*args)
 
     def parse(s):
@@ -151,10 +152,10 @@ def eat(f):
     return parse
 
 
-def a(term):
+def a(val):
     def parse(s):
-        i = s.pos + len(term)
-        if s.buf[s.pos:i] == term:
+        i = s.pos + len(val)
+        if s.buf[s.pos:i] == val:
             s.pos = i
             return True
         return False
