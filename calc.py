@@ -1,40 +1,40 @@
-# Simple calculator
+# Infix to AST translator
 
-from parse import *
+from raddsl_parse import *
+
+ast_op = to(3, lambda x, o, y: (o[1], x, y))
+ast_uop = to(2, lambda o, x: (o[1], x))
 
 ws = many(space)
 num = seq(cite(some(digit)), to(1, lambda x: ("num", int(x))))
-oper = seq(cite(one_of("+-*/()")), to(1, lambda x: ("op", x)))
-token = memo(seq(ws, alt(num, oper)))
+var = seq(cite(seq(letter, many(alt(letter, digit)))),
+          to(1, lambda x: ("var", x)))
+op = seq(cite(one_of("+-*/^()")), to(1, lambda x: ("sym", x)))
+token = seq(ws, alt(num, var, op))
 
+def token_is(k): return seq(token, guard(lambda x: x[0] == k))
+def with_val(v): return guard(lambda x: x[1] == v)
+def sym(v): return seq(token_is("sym"), with_val(v), drop)
+def left(p): return seq(tab.expr(p + 1), ast_op)
+def right(p): return seq(tab.expr(p), ast_op)
 
-def op(o): return seq(token, guard(lambda x: x == ("op", o)), drop)
+tab = Prec(token, lambda t: t[1] if t[0] == "sym" else t[0])
+expr = tab.expr(0)
+tab.prefix["num"] = tab.prefix["var"] = empty
+tab.prefix["("] = seq(drop, expr, sym(")"))
+tab.prefix["-"] = seq(tab.expr(4), ast_uop)
 
-
-def left(p): return seq(tab.expr(p + 1), to(3, binop))
-
-
-tab = Prec(token, lambda x: x[1] if x[0] == "op" else x[0])
-tab.prefix["num"] = to(1, lambda x: x[1])
-tab.prefix["("] = seq(drop, tab.expr(0), op(")"))
-tab.infix["+"] = left, 1
-tab.infix["-"] = left, 1
-tab.infix["*"] = left, 2
-tab.infix["/"] = left, 2
-
-main = seq(tab.expr(0), ws, end)
-
-
-def binop(x, o, y): return int(eval("%s%s%s" % (x, o[1], y)))
-
+tab.infix["+"] = tab.infix["-"] = left, 1
+tab.infix["*"] = tab.infix["/"] = left, 2
+tab.infix["^"] = right, 3
 
 def calc(text):
     """
-    >>> calc("(100 / 10) * 4 + 2")
-    42
+    >>> calc("b^2 - 4*a*c")
+    ('-', ('^', ('var', 'b'), ('num', 2)), ('*', ('*', ('num', 4), ('var', 'a')), ('var', 'c')))
     """
-    s = Stream(text)
-    if not main(s):
-        print("%s\n%s" % (text, " " * s.epos + "^ Eh?"))
+    s = State(text)
+    if not expr(s):
+        print("%s\n%s" % (text, " " * s.err + "^ Eh?"))
         return None
     return(s.out[0])

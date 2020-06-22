@@ -1,7 +1,6 @@
 # Code formatter
 
-from rewrite import *
-
+from raddsl_rewrite import *
 
 class Head(dict):
     def __eq__(self, right):
@@ -10,17 +9,13 @@ class Head(dict):
     def __ne__(self, right):
         return not self.__eq__(right)
 
-
 def make_term(tag):
     return lambda *args, **attrs: (Head(tag=tag, **attrs),) + args
 
-
 def is_term(x): return isinstance(x, tuple)
-
 
 H = make_term("H")
 V = make_term("V")
-
 
 def fmt(box):
     def unbox(box):
@@ -38,7 +33,6 @@ def fmt(box):
         return tab + lst
 
     return flatten(unbox(box))
-
 
 Var = make_term("Var")
 Int = make_term("Int")
@@ -77,9 +71,8 @@ stmt = alt(
     rule(Func(let(X=expr), [], let(Y=stmt)), to(lambda v: V(
         H("void", H(v.X, "(void)", sep="")), "{", V(*v.Y, tab="\t"), "}"
     ))),
-    many(stmt)
+    every(stmt)
 )
-
 
 def ast_to_text(ast, rules):
     """
@@ -93,5 +86,5 @@ def ast_to_text(ast, rules):
     >>> ast_to_text(ast, stmt)
     'void foo(void)\\n{\\n\\tif ((x + 1) > 0) {\\n\\t\\tx = 0;\\n\\t\\tz = y + 1;\\n\\t}\\n\\ty = z;\\n}'
     """
-    t = Tree(ast)
+    t = State(ast)
     return fmt(t.out) if rules(t) else None

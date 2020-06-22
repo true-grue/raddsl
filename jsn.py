@@ -1,6 +1,6 @@
 # JSON parser
 
-from parse import *
+from raddsl_parse import *
 
 t_op = to(1, lambda x: ("op", x))
 t_num = to(1, lambda x: ("num", float(x)))
@@ -19,15 +19,9 @@ string = seq(a('"'), cite(many(alt(non(one_of('"\\')), escaped))),
              a('"'), t_str)
 token = memo(seq(ws, alt(operator, string, number)))
 
-
 def op(o): return seq(token, guard(lambda x: x == ("op", o)), drop)
-
-
 def ty(t): return seq(token, guard(lambda x: x[0] == t), to(1, lambda x: x[1]))
-
-
 def value(x): return value(x)
-
 
 true = seq(op("true"), to(0, lambda: True))
 false = seq(op("false"), to(0, lambda: False))
@@ -38,12 +32,11 @@ obj = seq(op("{"), group(opt(list_of(member, op(",")))), op("}"), to(1, dict))
 value = alt(ty("num"), ty("str"), true, false, null, obj, array)
 main = seq(alt(obj, array), ws, end)
 
-
 def json_parse(text):
     """
     >>> d = json_parse('{ "Object":{"Zoom": false, "Property1":{"Property2":{"Color":[0,153,255,0]},"Width":40}} }')
     >>> d == {'Object': {'Zoom': False, 'Property1': {'Property2': {'Color': [0.0, 153.0, 255.0, 0.0]}, 'Width': 40.0}}}
     True
     """
-    s = Stream(text)
+    s = State(text)
     return s.out[0] if main(s) else None
