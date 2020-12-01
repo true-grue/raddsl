@@ -68,5 +68,3 @@ def pp(ast):
     """
     s = State(ast)
     return attr(s.out, "pp") if ag(s) else None
-
-pp(Bop('+', Bop('-', Bop('+', Num(2), Bop('*', Num(2), Num(3))), Bop('*', Bop('/', Num(2), Num(2)), Bop('-', Num(4), Num(3)))), Num(1)))
