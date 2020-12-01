@@ -1,16 +1,7 @@
 # Algebraic simplifications
 
-from raddsl_rewrite import *
-
-class Head(dict):
-    def __eq__(self, right): return self["tag"] == right
-
-    def __ne__(self, right): return not self.__eq__(right)
-
-    def __repr__(self): return self["tag"]
-
-def make_term(tag):
-    return lambda *args, **attrs: (Head(tag=tag, **attrs),) + args
+from lib.raddsl_rewrite import *
+from lib.term import Head, make_term
 
 Var = make_term("Var")
 Int = make_term("Int")
@@ -19,8 +10,9 @@ Add = make_term("+")
 Sub = make_term("-")
 Mul = make_term("*")
 
-X, Y, Z = let(X=non(Int(any))), let(Y=non(Int(any))), let(Z=non(Int(any)))
-C, D = Int(let(C=any)), Int(let(D=any))
+X, Y, Z = let(X=non(Int(Any))), let(Y=non(Int(Any))), let(Z=non(Int(Any)))
+C, D = Int(let(C=Any)), Int(let(D=Any))
+
 
 def Cadd(x, y):
     return alt(Add(x, y), Add(y, x))
@@ -28,6 +20,7 @@ def Cadd(x, y):
 
 def Cmul(x, y):
     return alt(Mul(x, y), Mul(y, x))
+
 
 rules = innermost(rule(alt(
     seq(Add(C, D), to(lambda v: Int(v.C + v.D))),
@@ -56,11 +49,12 @@ rules = innermost(rule(alt(
     seq(Cmul(C, Cmul(D, X)), to(lambda v: Mul(Int(v.C * v.D), v.X)))
 )))
 
+
 def simplify(ast):
     """
     >>> ast = Add(Add(Sub(Var("x"), Int(4)), Sub(Var("y"), Int(5))), Add(Var("z"), Int(10)))
     >>> simplify(ast)
-    (+, (Int, 1), (+, (Var, 'z'), (+, (Var, 'y'), (Var, 'x'))))
+    ("+", ("Int", 1), ("+", ("Var", 'z'), ("+", ("Var", 'y'), ("Var", 'x'))))
     """
     t = State(ast)
     return t.out if rules(t) else None

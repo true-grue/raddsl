@@ -1,6 +1,6 @@
 # JSON parser
 
-from raddsl_parse import *
+from lib.raddsl_parse import *
 
 t_op = to(1, lambda x: ("op", x))
 t_num = to(1, lambda x: ("num", float(x)))
@@ -19,9 +19,11 @@ string = seq(a('"'), cite(many(alt(non(one_of('"\\')), escaped))),
              a('"'), t_str)
 token = memo(seq(ws, alt(operator, string, number)))
 
+
 def op(o): return seq(token, guard(lambda x: x == ("op", o)), drop)
 def ty(t): return seq(token, guard(lambda x: x[0] == t), to(1, lambda x: x[1]))
 def value(x): return value(x)
+
 
 true = seq(op("true"), to(0, lambda: True))
 false = seq(op("false"), to(0, lambda: False))
@@ -31,6 +33,7 @@ member = group(ty("str"), op(":"), value)
 obj = seq(op("{"), group(opt(list_of(member, op(",")))), op("}"), to(1, dict))
 value = alt(ty("num"), ty("str"), true, false, null, obj, array)
 main = seq(alt(obj, array), ws, end)
+
 
 def json_parse(text):
     """

@@ -1,10 +1,9 @@
-from doctest import run_docstring_examples
+import doctest
 import jsn
 import calc
 import fmt
 import simp
+import pp
 
-run_docstring_examples(jsn.json_parse, vars(jsn))
-run_docstring_examples(calc.calc, vars(calc))
-run_docstring_examples(fmt.ast_to_text, vars(fmt))
-run_docstring_examples(simp.simplify, vars(simp))
+for m in jsn, calc, fmt, simp, pp:
+    doctest.testmod(m)

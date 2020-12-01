@@ -1,21 +1,11 @@
 # Code formatter
 
-from raddsl_rewrite import *
-
-class Head(dict):
-    def __eq__(self, right):
-        return self["tag"] == right
-
-    def __ne__(self, right):
-        return not self.__eq__(right)
-
-def make_term(tag):
-    return lambda *args, **attrs: (Head(tag=tag, **attrs),) + args
-
-def is_term(x): return isinstance(x, tuple)
+from lib.raddsl_rewrite import *
+from lib.term import Head, make_term, is_term
 
 H = make_term("H")
 V = make_term("V")
+
 
 def fmt(box):
     def unbox(box):
@@ -34,6 +24,7 @@ def fmt(box):
 
     return flatten(unbox(box))
 
+
 Var = make_term("Var")
 Int = make_term("Int")
 Assign = make_term("Assign")
@@ -45,19 +36,19 @@ pexpr = delay(lambda: pexpr)
 stmt = delay(lambda: stmt)
 
 val = alt(
-    rule(Var(let(X=any)), to(lambda v: H(v.X))),
-    rule(Int(let(X=any)), to(lambda v: H(str(v.X))))
+    rule(Var(let(X=Any)), to(lambda v: H(v.X))),
+    rule(Int(let(X=Any)), to(lambda v: H(str(v.X))))
 )
 
 pexpr = alt(
     val,
-    rule(Bop(let(O=any), let(X=pexpr), let(Y=pexpr)),
+    rule(Bop(let(O=Any), let(X=pexpr), let(Y=pexpr)),
          to(lambda v: H("(", H(v.X, v.O, v.Y), ")", sep="")))
 )
 
 expr = alt(
     val,
-    rule(Bop(let(O=any), let(X=pexpr), let(Y=pexpr)),
+    rule(Bop(let(O=Any), let(X=pexpr), let(Y=pexpr)),
          to(lambda v: H(v.X, v.O, v.Y)))
 )
 
@@ -71,8 +62,9 @@ stmt = alt(
     rule(Func(let(X=expr), [], let(Y=stmt)), to(lambda v: V(
         H("void", H(v.X, "(void)", sep="")), "{", V(*v.Y, tab="\t"), "}"
     ))),
-    every(stmt)
+    to_all(stmt)
 )
+
 
 def ast_to_text(ast, rules):
     """

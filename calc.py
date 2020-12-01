@@ -1,6 +1,6 @@
 # Infix to AST translator
 
-from raddsl_parse import *
+from lib.raddsl_parse import *
 
 ast_op = to(3, lambda x, o, y: (o[1], x, y))
 ast_uop = to(2, lambda o, x: (o[1], x))
@@ -12,11 +12,13 @@ var = seq(cite(seq(letter, many(alt(letter, digit)))),
 op = seq(cite(one_of("+-*/^()")), to(1, lambda x: ("sym", x)))
 token = seq(ws, alt(num, var, op))
 
+
 def token_is(k): return seq(token, guard(lambda x: x[0] == k))
 def with_val(v): return guard(lambda x: x[1] == v)
 def sym(v): return seq(token_is("sym"), with_val(v), drop)
 def left(p): return seq(tab.expr(p + 1), ast_op)
 def right(p): return seq(tab.expr(p), ast_op)
+
 
 tab = Prec(token, lambda t: t[1] if t[0] == "sym" else t[0])
 expr = tab.expr(0)
@@ -27,6 +29,7 @@ tab.prefix["-"] = seq(tab.expr(4), ast_uop)
 tab.infix["+"] = tab.infix["-"] = left, 1
 tab.infix["*"] = tab.infix["/"] = left, 2
 tab.infix["^"] = right, 3
+
 
 def calc(text):
     """
