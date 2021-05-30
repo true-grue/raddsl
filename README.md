@@ -5,7 +5,7 @@ Two combinator-based libraries (eDSLs) written in Python:
 1. *parse.py* for syntax analysis: PEG, scannerless parsing, selective memoization, Pratt parser.
 1. *rewrite.py* for AST transformations: strategic term rewriting.
 
-Ideas are taken from:
+Inspired by:
 
 1. Schorre, D. V. "Meta ii a syntax-oriented compiler writing language." Proceedings of the 1964 19th ACM national conference. ACM, 1964.
 1. Carr, C. Stephen, David A. Luther, and Sherian Erdmann. The Tree-Meta Compiler-Compiler System: A Meta Compiler System for the Univac 1108 and the General Electric 645. No. TR-4-12. UTAH UNIV SALT LAKE CITY DEPT OF COMPUTER SCIENCE, 1969.

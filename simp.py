@@ -1,7 +1,7 @@
 # Algebraic simplifications
 
-from lib.raddsl_rewrite import *
-from lib.term import Head, make_term
+from raddsl_rewrite import *
+from term import Head, make_term
 
 Var = make_term("Var")
 Int = make_term("Int")

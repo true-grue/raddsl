@@ -1,7 +1,7 @@
 # Code formatter
 
-from lib.raddsl_rewrite import *
-from lib.term import Head, make_term, is_term
+from raddsl_rewrite import *
+from term import Head, make_term, is_term
 
 H = make_term("H")
 V = make_term("V")

@@ -1,6 +1,6 @@
 # JSON parser
 
-from lib.raddsl_parse import *
+from raddsl_parse import *
 
 t_op = to(1, lambda x: ("op", x))
 t_num = to(1, lambda x: ("num", float(x)))

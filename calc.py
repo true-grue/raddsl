@@ -1,6 +1,6 @@
 # Infix to AST translator
 
-from lib.raddsl_parse import *
+from raddsl_parse import *
 
 ast_op = to(3, lambda x, o, y: (o[1], x, y))
 ast_uop = to(2, lambda o, x: (o[1], x))
